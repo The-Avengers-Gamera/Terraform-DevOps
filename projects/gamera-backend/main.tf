@@ -2,8 +2,8 @@ terraform {
   required_version = "~> 1.4"
 
   backend "s3" {
-    bucket = "richard-gamera-terraform"
-    key    = "backend/state.tfstate"
+    bucket = "gamera-terraform"
+    key    = "richard/terraform.tfstate"
     region = "ap-southeast-2"
   }
 }
