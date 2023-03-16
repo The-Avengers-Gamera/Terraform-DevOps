@@ -4,12 +4,6 @@ variable "environment" {
   default     = "dev"
 }
 
-variable "region" {
-  description = "Aws region"
-  type        = string
-  default     = "ap-southeast-2"
-}
-
 variable "subnet-attributes" {
   description = "Attributes for a list of subnets, follow the type required"
 
