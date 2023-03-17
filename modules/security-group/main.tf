@@ -30,3 +30,77 @@ resource "aws_security_group" "gamera-alb-sg" {
     Name = "gamera-alb-sg"
   }
 }
+
+resource "aws_security_group" "dev-db-sg" {
+  name        = "dev-db-sg"
+  description = "Allow postgres inbound traffic from anywhere"
+  vpc_id      = var.vpc-id
+
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "dev-db-sg"
+  }
+}
+
+resource "aws_security_group" "prod-db-sg" {
+  count = var.environment == "prod" ? 1 : 0
+
+  name        = "prod-db-sg"
+  description = "Allow postgres inbound traffic from prod ECS cluster"
+  vpc_id      = var.vpc-id
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.prod-ecs-sg[count.index].id]
+  }
+
+  tags = {
+    Name = "prod-db-sg"
+  }
+}
+
+
+resource "aws_security_group" "dev-ecs-sg" {
+  name        = "dev-ecs-sg"
+  description = "Allow inbound traffic from alb"
+  vpc_id      = var.vpc-id
+
+  ingress {
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.gamera-alb-sg.id]
+  }
+
+  tags = {
+    Name = "dev-ecs-sg"
+  }
+}
+
+
+resource "aws_security_group" "prod-ecs-sg" {
+  count = var.environment == "prod" ? 1 : 0
+
+  name        = "prod-ecs-sg"
+  description = "Allow inbound traffic from alb"
+  vpc_id      = var.vpc-id
+
+  ingress {
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.gamera-alb-sg.id]
+  }
+
+  tags = {
+    Name = "prod-ecs-sg"
+  }
+}
