@@ -3,14 +3,9 @@ terraform {
 
   backend "s3" {
     bucket = "gamera-terraform"
-    key = "richard/terraform.tfstate"
+    key = "richard/frontend/terraform.tfstate"
     region = "ap-southeast-2"
   }
 }
 
 provider "aws" {}
-
-module "gamera-vpc" {
-  source      = "../../modules/vpc"
-  environment = var.environment
-}
