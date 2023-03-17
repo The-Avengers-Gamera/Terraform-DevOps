@@ -3,7 +3,7 @@ terraform {
 
   backend "s3" {
     bucket = "gamera-terraform"
-    key = "richard/frontend/terraform.tfstate"
+    key    = "richard/frontend/terraform.tfstate"
     region = "ap-southeast-2"
   }
 }

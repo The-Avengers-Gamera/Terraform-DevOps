@@ -11,8 +11,9 @@ terraform {
 provider "aws" {}
 
 module "gamera-vpc" {
-  source      = "../../modules/vpc"
-  environment = var.environment
+  source            = "../../modules/vpc"
+  environment       = var.environment
+  subnet-attributes = var.subnet-attributes
 }
 
 module "security-group" {
@@ -21,13 +22,13 @@ module "security-group" {
 }
 
 module "load-balancer" {
-  source = "../../modules/load-balancer"
-  alb-sg-id = module.security-group.alb-sg.id
+  source         = "../../modules/load-balancer"
+  alb-sg-id      = module.security-group.alb-sg.id
   public-subnets = module.gamera-vpc.public-subnet-ids
 }
 
 module "ecr" {
-  source = "../../modules/ecr"
+  source      = "../../modules/ecr"
   environment = var.environment
 }
 
