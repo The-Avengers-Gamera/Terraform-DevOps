@@ -20,10 +20,15 @@ module "security-group" {
   vpc-id = module.gamera-vpc.vpc-id
 }
 
-module load-balancer {
+module "load-balancer" {
   source = "../../modules/load-balancer"
   alb-sg-id = module.security-group.alb-sg.id
   public-subnets = module.gamera-vpc.public-subnet-ids
+}
+
+module "ecr" {
+  source = "../../modules/ecr"
+  environment = var.environment
 }
 
 
