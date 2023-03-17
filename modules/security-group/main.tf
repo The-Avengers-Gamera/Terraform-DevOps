@@ -43,6 +43,13 @@ resource "aws_security_group" "dev-db-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
     Name = "dev-db-sg"
   }
@@ -60,6 +67,13 @@ resource "aws_security_group" "prod-db-sg" {
     to_port         = 5432
     protocol        = "tcp"
     security_groups = [aws_security_group.prod-ecs-sg[count.index].id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
@@ -80,6 +94,13 @@ resource "aws_security_group" "dev-ecs-sg" {
     security_groups = [aws_security_group.gamera-alb-sg.id]
   }
 
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
     Name = "dev-ecs-sg"
   }
@@ -98,6 +119,13 @@ resource "aws_security_group" "prod-ecs-sg" {
     to_port         = 8080
     protocol        = "tcp"
     security_groups = [aws_security_group.gamera-alb-sg.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
