@@ -85,14 +85,13 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     }
   }
 
-  //多环境
   price_class = count.index == 0 ? "PriceClass_100" : "PriceClass_All"
 
-  //多环境
   tags = {
     Environment = count.index == 0 ? "dev" : "prod"
   }
 
+  //Add cert here
   viewer_certificate {
     cloudfront_default_certificate = true
   }

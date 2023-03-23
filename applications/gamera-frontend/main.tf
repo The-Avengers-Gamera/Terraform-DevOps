@@ -17,7 +17,9 @@ module "s3" {
 
 module "route53" {
   source             = "../../modules/route53"
+  environment                 = var.environment
   gamera-hosted-zone = var.gamera-hosted-zone
+  cloudfront-distributions = module.cloudfront.cloudfront-distributions
 }
 
 module "acm" {
