@@ -91,8 +91,9 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     Environment = count.index == 0 ? "dev" : "prod"
   }
 
-  //Add cert here
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = var.acm-certificate-arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.1_2016"
   }
 }

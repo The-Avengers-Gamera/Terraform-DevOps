@@ -33,4 +33,5 @@ module "cloudfront" {
   source                      = "../../modules/cloudfront"
   environment                 = var.environment
   gamera-website-host-buckets = module.s3.gamera-website-host-buckets
+  acm-certificate-arn = module.acm.acm-certificate-arn
 }
