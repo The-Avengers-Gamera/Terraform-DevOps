@@ -11,8 +11,8 @@ terraform {
 provider "aws" {}
 
 module "s3" {
-  source              = "../../modules/s3"
-  website-bucket-name = var.website-bucket-name
+  source      = "../../modules/s3"
+  environment = var.environment
 }
 
 module "route53" {

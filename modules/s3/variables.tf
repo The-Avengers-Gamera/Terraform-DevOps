@@ -1,4 +1,4 @@
-variable "website-bucket-name" {
+variable "environment" {
   type        = string
-  description = "This is name of bucket which is used to host website"
+  description = "The environment of project"
 }
