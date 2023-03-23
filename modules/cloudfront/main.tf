@@ -1,25 +1,13 @@
-resource "aws_s3_bucket" "b" {
-  bucket = "mybucket"
-
-  tags = {
-    Name = "My bucket"
-  }
-}
-
-resource "aws_s3_bucket_acl" "b_acl" {
-  bucket = aws_s3_bucket.b.id
-  acl    = "private"
-}
-
 locals {
-  s3_origin_id = "myS3Origin"
+  s3_origin_id = ["dev-richard-gamera-s3-origin", "prod-richard-gamera-s3-origin"]
 }
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
+  count = var.environment == "prod" ? 2 : 1
+
   origin {
-    domain_name              = aws_s3_bucket.b.bucket_regional_domain_name
-    origin_access_control_id = aws_cloudfront_origin_access_control.default.id
-    origin_id                = local.s3_origin_id
+    domain_name = var.gamera-website-host-buckets[count.index].bucket_regional_domain_name
+    origin_id   = local.s3_origin_id[count.index]
   }
 
   enabled             = true
@@ -27,18 +15,10 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   comment             = "Some comment"
   default_root_object = "index.html"
 
-  logging_config {
-    include_cookies = false
-    bucket          = "mylogs.s3.amazonaws.com"
-    prefix          = "myprefix"
-  }
-
-  aliases = ["mysite.example.com", "yoursite.example.com"]
-
   default_cache_behavior {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = local.s3_origin_id
+    target_origin_id = local.s3_origin_id[count.index]
 
     forwarded_values {
       query_string = false
@@ -59,7 +39,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     path_pattern     = "/content/immutable/*"
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id = local.s3_origin_id
+    target_origin_id = local.s3_origin_id[count.index]
 
     forwarded_values {
       query_string = false
@@ -82,7 +62,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     path_pattern     = "/content/*"
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = local.s3_origin_id
+    target_origin_id = local.s3_origin_id[count.index]
 
     forwarded_values {
       query_string = false
@@ -99,17 +79,18 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     viewer_protocol_policy = "redirect-to-https"
   }
 
-  price_class = "PriceClass_200"
-
   restrictions {
     geo_restriction {
-      restriction_type = "whitelist"
-      locations        = ["US", "CA", "GB", "DE"]
+      restriction_type = "none"
     }
   }
 
+  //多环境
+  price_class = count.index == 0 ? "PriceClass_100" : "PriceClass_All"
+
+  //多环境
   tags = {
-    Environment = "production"
+    Environment = count.index == 0 ? "dev" : "prod"
   }
 
   viewer_certificate {
