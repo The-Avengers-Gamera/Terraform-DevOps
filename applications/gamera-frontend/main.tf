@@ -9,3 +9,9 @@ terraform {
 }
 
 provider "aws" {}
+
+module "s3-website-hosting-bucket" {
+  source              = "../../modules/s3"
+  website-bucket-name = var.website-bucket-name
+}
+
