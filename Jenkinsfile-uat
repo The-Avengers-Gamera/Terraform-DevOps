@@ -1,0 +1,66 @@
+pipeline {
+    agent {
+        label 'gcp_node'
+    }
+
+    environment {
+        ENV = "dev"
+        S3_ENV_PATH = credential('RICHARD_S3_ENV_PATH')
+    }
+
+    stages {
+        stage("Git checkout") {
+            steps {
+                //Get source code from project's terraform repository
+                git branch: 'richard-terraform',
+                url: 'https://github.com/The-Avengers-Gamera/Terraform-DevOps.git'
+            }
+        }
+
+        stage("Provision frontend's infrastructure") {
+            steps {
+                //Provision the frontend's infrastructure
+                echo 'Frontend infrastructure provisioning'
+                
+                dir('applications/gamera-frontend') {
+                    //Install provider and modules
+                    sh 'terraform init'
+
+                    //Provision the infrastructure in UAT environment
+                    sh 'terraform apply -auto-approve -var "environment=${ENV}"'
+
+                    //Save the output in .env file
+                    sh 'echo "cloudfornt-id=$(terraform output cloudfornt-id)" > richard-uat-gamera-frontend.env'
+
+                    //Create or update .env file to s3 bucekt
+                    sh 'aws s3 cp richard-uat-gamera-frontend.env ${S3_ENV_PATH}/richard-uat-gamera-frontend.env'
+                }
+            }
+        }
+
+        stage("Provision frontend's infrastructure") {
+            steps {
+                //Provision the frontend's infrastructure
+                echo 'Backend infrastructure provisioning'
+            }
+        }
+    }
+    
+
+    post {
+        always {
+            // Clean the workspace after every pipeline build process
+            echo 'Cleaning workspace'
+            cleanWs()
+        }
+
+        failure {
+            echo 'Build fail, sending error message for debugging'
+
+            // Send error messages to DevOps engineer for debugging
+            mail to: 'yyaug99@gmail.com',
+            subject: "Pipeline build fails in: ${currentBuild.fullDisplayName}",
+            body: "Build failed in ${env.BUILD_URL}"
+        }
+    }
+}
