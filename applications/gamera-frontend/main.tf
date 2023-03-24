@@ -22,16 +22,8 @@ module "route53" {
   cloudfront-distributions = module.cloudfront.cloudfront-distributions
 }
 
-module "acm" {
-  source                    = "../../modules/acm"
-  domain-name               = "richard.${var.gamera-hosted-zone}"
-  subject-alternative-names = var.subject-alternative-names
-  hosted-zone-id            = module.route53.hosted-zone-id
-}
-
 module "cloudfront" {
   source                      = "../../modules/cloudfront"
   environment                 = var.environment
   gamera-website-host-buckets = module.s3.gamera-website-host-buckets
-  acm-certificate-arn = module.acm.acm-certificate-arn
 }
