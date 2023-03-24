@@ -38,9 +38,9 @@ pipeline {
             }
         }
 
-        stage("Provision frontend's infrastructure") {
+        stage("Provision backends's infrastructure") {
             steps {
-                //Provision the frontend's infrastructure
+                //Provision the backend's infrastructure
                 echo 'Backend infrastructure provisioning'
             }
         }
