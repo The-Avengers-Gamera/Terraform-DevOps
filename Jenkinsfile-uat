@@ -5,7 +5,7 @@ pipeline {
 
     environment {
         ENV = "dev"
-        S3_ENV_PATH = credential('RICHARD_S3_ENV_PATH')
+        S3_ENV_PATH = credentials('RICHARD_S3_ENV_PATH')
     }
 
     stages {
@@ -41,7 +41,7 @@ pipeline {
         stage("Provision backends's infrastructure") {
             steps {
                 //Provision the backend's infrastructure
-                echo 'Backend infrastructure provisioning'
+                echo 'Backend infrastructure provisioning'  
             }
         }
     }
