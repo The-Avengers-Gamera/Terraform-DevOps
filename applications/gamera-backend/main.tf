@@ -10,7 +10,7 @@ terraform {
 
 provider "aws" {}
 
-module "gamera-vpc" {
+/*module "gamera-vpc" {
   source            = "../../modules/vpc"
   environment       = var.environment
   subnet-attributes = var.subnet-attributes
@@ -28,11 +28,6 @@ module "load-balancer" {
   public-subnets = module.gamera-vpc.public-subnet-ids
 }
 
-module "ecr" {
-  source      = "../../modules/ecr"
-  environment = var.environment
-}
-
 module "rds" {
   source             = "../../modules/rds"
   environment        = var.environment
@@ -40,7 +35,20 @@ module "rds" {
   prod-db-sg-id      = module.security-group.prod-db-sg-id
   public-subnet-ids  = module.gamera-vpc.public-subnet-ids
   private-subnet-ids = module.gamera-vpc.private-subnet-ids
+}*/
+
+module "ecr" {
+  source      = "../../modules/ecr"
+  environment = var.environment
 }
 
+module "ecs" {
+  source                  = "../../modules/ecs"
+  environment             = var.environment
+  gamera-ecr-url          = module.ecr.gamera-ecr-url
+  ecs-task-execution-role = module.iam.ecs-task-execution-role
+}
 
-
+module "iam" {
+  source = "../../modules/iam"
+}
