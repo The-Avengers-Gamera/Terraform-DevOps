@@ -12,3 +12,8 @@ output "prod-db-sg-id" {
   value       = var.environment == "prod" ? aws_security_group.prod-db-sg[0].id : ""
   description = "The security group for rds database in prod environment"
 }
+
+output "ecs-sg" {
+  value = aws_security_group.ecs-sg
+  description = "The security group for ecs service to allow inboud traffic from alb"
+}

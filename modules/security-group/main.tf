@@ -66,7 +66,7 @@ resource "aws_security_group" "prod-db-sg" {
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
-    security_groups = [aws_security_group.prod-ecs-sg[count.index].id]
+    security_groups = [aws_security_group.ecs-sg.id]
   }
 
   egress {
@@ -82,7 +82,7 @@ resource "aws_security_group" "prod-db-sg" {
 }
 
 
-resource "aws_security_group" "dev-ecs-sg" {
+resource "aws_security_group" "ecs-sg" {
   name        = "dev-ecs-sg"
   description = "Allow inbound traffic from alb"
   vpc_id      = var.vpc-id
@@ -103,32 +103,5 @@ resource "aws_security_group" "dev-ecs-sg" {
 
   tags = {
     Name = "dev-ecs-sg"
-  }
-}
-
-
-resource "aws_security_group" "prod-ecs-sg" {
-  count = var.environment == "prod" ? 1 : 0
-
-  name        = "prod-ecs-sg"
-  description = "Allow inbound traffic from alb"
-  vpc_id      = var.vpc-id
-
-  ingress {
-    from_port       = 8080
-    to_port         = 8080
-    protocol        = "tcp"
-    security_groups = [aws_security_group.gamera-alb-sg.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "prod-ecs-sg"
   }
 }
