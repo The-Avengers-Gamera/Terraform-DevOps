@@ -3,6 +3,11 @@ variable "environment" {
   type        = string
 }
 
+variable "project-name" {
+  description = "Name of project"
+  type = string
+}
+
 variable "subnet-attributes" {
   description = "Attributes for a list of subnets"
 

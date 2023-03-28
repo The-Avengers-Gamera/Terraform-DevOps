@@ -1,4 +1,6 @@
 resource "aws_acm_certificate" "gamera-certificates" {
+  
+
   domain_name               = var.domain-name
   subject_alternative_names = var.subject-alternative-names
   validation_method         = "DNS"

@@ -10,6 +10,14 @@ terraform {
 
 provider "aws" {}
 
+module "vpc" {
+  source            = "../../modules/vpc"
+  environment       = var.environment
+  subnet-attributes = var.subnet-attributes
+  project-name = var.project-name
+}
+
+/*
 locals {
   ecr-index = var.environment == "dev" ? 0 : 1
 }
@@ -57,14 +65,14 @@ module "iam" {
   source = "../../modules/iam"
 }
 
-/*module "rds" {
+module "rds" {
   source             = "../../modules/rds"
   environment        = var.environment
   dev-db-sg-id       = module.security-group.dev-db-sg-id
   prod-db-sg-id      = module.security-group.prod-db-sg-id
   public-subnet-ids  = module.vpc.public-subnet-ids
   private-subnet-ids = module.vpc.private-subnet-ids
-}*/
+}
 
 resource "null_resource" "push-default-image" {
   depends_on = [module.ecr]
@@ -77,3 +85,4 @@ resource "null_resource" "push-default-image" {
     }
   }
 }
+*/

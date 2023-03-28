@@ -1,11 +1,11 @@
 output "vpc-id" {
-  value       = aws_vpc.gamera-vpc.id
+  value       = aws_vpc.vpc.id
   description = "The VPC id"
 }
 
 output "public-subnet-ids" {
   value = [
-    for subnet in aws_subnet.gamera-subnets :
+    for subnet in aws_subnet.subnets :
     subnet.id
     if subnet.map_public_ip_on_launch == true
   ]
@@ -13,7 +13,7 @@ output "public-subnet-ids" {
 
 output "private-subnet-ids" {
   value = [
-    for subnet in aws_subnet.gamera-subnets :
+    for subnet in aws_subnet.subnets :
     subnet.id
     if subnet.map_public_ip_on_launch == false
   ]
