@@ -1,5 +1,5 @@
-output "alb-sg" {
-  value       = aws_security_group.alb-sg
+output "alb-sg-id" {
+  value       = aws_security_group.alb-sg.id
   description = "The security group for application load balancer"
 }
 
