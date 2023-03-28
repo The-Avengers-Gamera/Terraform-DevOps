@@ -1,5 +1,5 @@
-resource "aws_security_group" "gamera-alb-sg" {
-  name        = "gamera-alb-sg"
+resource "aws_security_group" "alb-sg" {
+  name        = "${var.environment}-${var.project-name}-alb-sg"
   description = "Allow TLS inbound traffic"
   vpc_id      = var.vpc-id
 
@@ -27,20 +27,28 @@ resource "aws_security_group" "gamera-alb-sg" {
   }
 
   tags = {
-    Name = "gamera-alb-sg"
+    Name = "${var.environment}-${var.project-name}alb-sg"
   }
 }
 
-resource "aws_security_group" "dev-db-sg" {
-  name        = "dev-db-sg"
-  description = "Allow postgres inbound traffic from anywhere"
-  vpc_id      = var.vpc-id
+resource "aws_security_group" "db-sg" {
+  name = "${var.environment}-${var.project-name}-db-sg"
+  description = (var.environment == "dev" ?
+    "Allow postgres inbound traffic from anywhere" :
+    "Allow postgres inbound traffic from prod ECS cluster"
+  )
+  vpc_id = var.vpc-id
 
-  ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "ingress" {
+    for_each = var.environment == "dev" ? ["anywhere"] : ["from_ecs"]
+    content {
+      from_port = 5432
+      to_port   = 5432
+      protocol  = "tcp"
+
+      cidr_blocks     = ingress.value == "anywhere" ? ["0.0.0.0/0"] : []
+      security_groups = ingress.value == "from_ecs" ? [aws_security_group.ecs-sg.id] : []
+    }
   }
 
   egress {
@@ -51,39 +59,12 @@ resource "aws_security_group" "dev-db-sg" {
   }
 
   tags = {
-    Name = "dev-db-sg"
+    Name = "${var.environment}-${var.project-name}-db-sg"
   }
 }
-
-resource "aws_security_group" "prod-db-sg" {
-  count = var.environment == "prod" ? 1 : 0
-
-  name        = "prod-db-sg"
-  description = "Allow postgres inbound traffic from prod ECS cluster"
-  vpc_id      = var.vpc-id
-
-  ingress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ecs-sg.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "prod-db-sg"
-  }
-}
-
 
 resource "aws_security_group" "ecs-sg" {
-  name        = "dev-ecs-sg"
+  name        = "${var.environment}-${var.project-name}-ecs-sg"
   description = "Allow inbound traffic from alb"
   vpc_id      = var.vpc-id
 
@@ -91,7 +72,7 @@ resource "aws_security_group" "ecs-sg" {
     from_port       = 8080
     to_port         = 8080
     protocol        = "tcp"
-    security_groups = [aws_security_group.gamera-alb-sg.id]
+    security_groups = [aws_security_group.alb-sg.id]
   }
 
   egress {
@@ -102,6 +83,6 @@ resource "aws_security_group" "ecs-sg" {
   }
 
   tags = {
-    Name = "dev-ecs-sg"
+    Name = "${var.environment}-${var.project-name}-ecs-sg"
   }
 }

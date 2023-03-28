@@ -11,29 +11,27 @@ terraform {
 provider "aws" {}
 
 module "vpc" {
-  source            = "../../modules/vpc"
+  source = "../../modules/vpc"
+
   environment       = var.environment
+  project-name      = var.project-name
   subnet-attributes = var.subnet-attributes
-  project-name = var.project-name
 }
+
+module "security-group" {
+  source = "../../modules/security-group"
+
+  environment  = var.environment
+  project-name = var.project-name
+  vpc-id       = module.vpc.vpc-id
+}
+
 
 /*
 locals {
   ecr-index = var.environment == "dev" ? 0 : 1
 }
 
-
-module "vpc" {
-  source            = "../../modules/vpc"
-  environment       = var.environment
-  subnet-attributes = var.subnet-attributes
-}
-
-module "security-group" {
-  source      = "../../modules/security-group"
-  vpc-id      = module.vpc.vpc-id
-  environment = var.environment
-}
 
 module "load-balancer" {
   source         = "../../modules/load-balancer"

@@ -5,7 +5,7 @@ variable "environment" {
 
 variable "project-name" {
   description = "Name of project"
-  type = string
+  type        = string
 }
 
 variable "subnet-attributes" {
