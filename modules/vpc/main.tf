@@ -1,11 +1,11 @@
 resource "aws_vpc" "vpc" {
-  cidr_block       = "10.0.0.0/16"
-  instance_tenancy = "default"
-  enable_dns_support = true
+  cidr_block           = "10.0.0.0/16"
+  instance_tenancy     = "default"
+  enable_dns_support   = true
   enable_dns_hostnames = true
 
   tags = {
-    Name = "${var.environment == "dev" ? "dev" : "prod"}-${var.project-name}-vpc"
+    Name = "${var.environment}-${var.project-name}-vpc"
   }
 }
 
@@ -27,7 +27,7 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
 
   tags = {
-    Name = "${var.environment == "dev" ? "dev" : "prod"}-${var.project-name}-igw"
+    Name = "${var.environment}-${var.project-name}-igw"
   }
 }
 
@@ -63,7 +63,7 @@ resource "aws_route_table" "public-rt" {
   }
 
   tags = {
-    Name = "${var.environment == "dev" ? "dev" : "prod"}-${var.project-name}-public-route-table"
+    Name = "${var.environment}-${var.project-name}-public-route-table"
   }
 }
 
@@ -76,7 +76,7 @@ resource "aws_route_table" "private-rt" {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.ngw[count.index].id
   }
-  
+
   tags = {
     Name = "prod-${var.project-name}-private-route-table"
   }
@@ -86,7 +86,7 @@ resource "aws_route_table_association" "gamera_subnet_association" {
   count     = length(aws_subnet.subnets[*].id)
   subnet_id = aws_subnet.subnets[count.index].id
 
-  route_table_id = (var.environment == "dev" ? aws_route_table.public-rt.id : 
-    (var.subnet-attributes.if-public[count.index] ? aws_route_table.public-rt.id : aws_route_table.private-rt[0].id))
+  route_table_id = (var.environment == "dev" ? aws_route_table.public-rt.id :
+  (var.subnet-attributes.if-public[count.index] ? aws_route_table.public-rt.id : aws_route_table.private-rt[0].id))
 }
 
