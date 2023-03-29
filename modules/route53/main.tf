@@ -1,18 +1,16 @@
-data "aws_route53_zone" "gamera-hosted-zone" {
-  name         = var.gamera-hosted-zone
+data "aws_route53_zone" "hosted-zone" {
+  name         = var.hosted-zone
   private_zone = false
 }
 
-resource "aws_route53_record" "richard-gamera-record" {
-  count = var.environment == "prod" ? 2 : 1
-
-  zone_id = data.aws_route53_zone.gamera-hosted-zone.zone_id
-  name    = "${count.index == 0 ? "dev" : "prod"}.richard.gamera.com.au"
+resource "aws_route53_record" "route-record" {
+  zone_id = data.aws_route53_zone.hosted-zone.zone_id
+  name    = "${var.record-prefix}.${var.hosted-zone}"
   type    = "A"
 
   alias {
-    name                   = var.cloudfront-distributions[count.index].domain_name
-    zone_id                = var.cloudfront-distributions[count.index].hosted_zone_id
+    name                   = var.alias-dns-name
+    zone_id                = var.alias-zone-id
     evaluate_target_health = false
   }
 }

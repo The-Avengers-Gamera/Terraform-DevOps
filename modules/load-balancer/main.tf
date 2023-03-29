@@ -1,36 +1,53 @@
-resource "aws_lb" "gamera-alb" {
-  name               = "gamera-alb"
+resource "aws_lb" "alb" {
+  name               = "${var.environment}-${var.project-name}-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [var.alb-sg-id]
-  subnets            = var.public-subnets
+  subnets            = var.public-subnet-ids
 
   tags = {
-    Name = "gamera-alb"
+    Name = "${var.environment}-${var.project-name}-alb"
   }
 }
 
-resource "aws_lb_target_group" "gamera-target-groups" {
-  count = var.environment == "prod" ? 2 : 1
-
-  name        = "${count.index == 0 ? "uat" : "prod"}-gamera-target-group"
+resource "aws_lb_target_group" "target-group" {
+  name        = "${var.environment}-${var.project-name}-target-group"
   port        = 8080
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.vpc-id
+
+  health_check {
+    path    = var.health-check-path
+    matcher = "200,302"
+  }
 }
 
-resource "aws_lb_listener" "gamera-listeners" {
-  count = var.environment == "prod" ? 2 : 1
-
-  load_balancer_arn = aws_lb.gamera-alb.arn
+resource "aws_lb_listener" "http-listeners" {
+  load_balancer_arn = aws_lb.alb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.gamera-target-groups[count.index].arn
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }
 
-//alb rule needed
+resource "aws_lb_listener" "https-listeners" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  certificate_arn   = var.alb-certificate-arn
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.target-group.arn
+  }
+}

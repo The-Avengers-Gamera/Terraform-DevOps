@@ -26,19 +26,38 @@ module "security-group" {
   vpc-id       = module.vpc.vpc-id
 }
 
+module "route53" {
+  source = "../../modules/route53"
+
+  hosted-zone    = var.hosted-zone
+  record-prefix  = var.record-prefix
+  alias-dns-name = module.load-balancer.dns-name
+  alias-zone-id  = module.load-balancer.zone-id
+}
+
+module "acm" {
+  source = "../../modules/acm"
+
+  domain-name    = "${var.record-prefix}.${var.hosted-zone}"
+  hosted-zone-id = module.route53.hosted-zone-id
+}
+
+module "load-balancer" {
+  source = "../../modules/load-balancer"
+
+  environment         = var.environment
+  project-name        = var.project-name
+  alb-sg-id           = module.security-group.alb-sg-id
+  public-subnet-ids   = module.vpc.public-subnet-ids
+  vpc-id              = module.vpc.vpc-id
+  alb-certificate-arn = module.acm.acm-certificate-arn
+  health-check-path   = var.health-check-path
+}
+
 
 /*
 locals {
   ecr-index = var.environment == "dev" ? 0 : 1
-}
-
-
-module "load-balancer" {
-  source         = "../../modules/load-balancer"
-  environment = var.environment
-  alb-sg-id      = module.security-group.alb-sg.id
-  public-subnets = module.vpc.public-subnet-ids
-  vpc-id = module.vpc.vpc-id
 }
 
 module "ecr" {

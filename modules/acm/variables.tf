@@ -1,6 +1,6 @@
-variable "subject-alternative-names" {
-  type        = list(string)
-  description = "The SANs of ACM certificate"
+variable "domain-name" {
+  type        = string
+  description = "The domain name of project"
 }
 
 variable "hosted-zone-id" {

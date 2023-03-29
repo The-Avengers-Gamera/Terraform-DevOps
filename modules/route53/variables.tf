@@ -1,13 +1,17 @@
-variable "environment" {
-  type        = string
-  description = "The environment of project"
-}
-
-variable "gamera-hosted-zone" {
+variable "hosted-zone" {
   type        = string
   description = "The name of hosted zone in route 53"
 }
 
-variable "cloudfront-distributions" {
-  description = "This is the list of cloudfront distributions"
+variable "record-prefix" {
+  type        = string
+  description = "The prefix of record to be created"
+}
+
+variable "alias-dns-name" {
+  description = "The dns name of alias resource"
+}
+
+variable "alias-zone-id" {
+  description = "The zone id of alias resource"
 }
