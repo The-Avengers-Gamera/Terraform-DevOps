@@ -1,9 +1,9 @@
-resource "aws_ecs_cluster" "gamera-ecs-cluster" {
-  name = "gamera-ecs-cluster"
+resource "aws_ecs_cluster" "ecs-cluster" {
+  name = "${var.environment}-${var.project-name}-ecs-cluster"
 }
 
 resource "aws_ecs_cluster_capacity_providers" "fargate-provider" {
-  cluster_name = aws_ecs_cluster.gamera-ecs-cluster.name
+  cluster_name = aws_ecs_cluster.ecs-cluster.name
 
   capacity_providers = ["FARGATE"]
 
@@ -14,20 +14,18 @@ resource "aws_ecs_cluster_capacity_providers" "fargate-provider" {
   }
 }
 
-resource "aws_ecs_task_definition" "gamera-ecs-task-def" {
-  count = var.environment == "prod" ? 2 : 1
-
-  family = count.index == 0 ? "gamera-uat-task" : "gamera-prod-task"
+resource "aws_ecs_task_definition" "ecs-task-def" {
+  family                   = "${var.environment}-${var.project-name}-task-def"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = count.index == 0 ? 512 : 1024
-  memory                   = count.index == 0 ? 1024 : 2048
+  cpu                      = var.ecs-cpu
+  memory                   = var.ecs-memory
   container_definitions = jsonencode([
     {
-      name      = count.index == 0 ? "gamera-container-uat" : "gamera-container-prod"
-      image     = "${var.gamera-ecr-url[count.index]}:latest"
-      cpu       = count.index == 0 ? 512 : 1024
-      memory    = count.index == 0 ? 1024 : 2048
+      name      = "${var.environment}-${var.project-name}-container"
+      image     = "${var.ecr-url}:latest"
+      cpu       = var.ecs-cpu
+      memory    = var.ecs-memory
       essential = true
       portMappings = [
         {
@@ -43,26 +41,24 @@ resource "aws_ecs_task_definition" "gamera-ecs-task-def" {
     cpu_architecture        = "X86_64"
   }
 
-  execution_role_arn = var.ecs-task-execution-role.arn
+  execution_role_arn = var.ecs-task-execution-role-arn
 }
 
-resource "aws_ecs_service" "gamera-services" {
-  count = var.environment == "prod" ? 2 : 1
-
-  name            = "gamera-${count.index == 0 ? "uat" : "prod"}"
-  cluster         = aws_ecs_cluster.gamera-ecs-cluster.id
-  task_definition = aws_ecs_task_definition.gamera-ecs-task-def[count.index].arn
-  desired_count   = count.index == 0 ? 1 : 3
+resource "aws_ecs_service" "service" {
+  name            = "${var.environment}-${var.project-name}-service"
+  cluster         = aws_ecs_cluster.ecs-cluster.id
+  task_definition = aws_ecs_task_definition.ecs-task-def.arn
+  desired_count   = var.service-desired
 
   load_balancer {
-    target_group_arn = var.gamera-target-groups[count.index].arn
-    container_name   = "gamera-container-${count.index == 0 ? "uat" : "prod"}"
+    target_group_arn = var.target-group-arn
+    container_name   = "${var.environment}-${var.project-name}-container"
     container_port   = 8080
   }
 
   network_configuration {
-    subnets = count.index == 0 ? var.public-subnet-ids : var.private-subnet-ids
-    assign_public_ip = count.index == 0 ? true : false
-    security_groups = [var.ecs-sg.id]
+    subnets          = var.subnet-ids
+    assign_public_ip = var.environment == "dev" ? true : false
+    security_groups  = [var.ecs-sg-id]
   }
 }

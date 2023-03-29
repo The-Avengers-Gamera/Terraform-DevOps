@@ -3,27 +3,47 @@ variable "environment" {
   description = "The environment of project"
 }
 
-variable "gamera-ecr-url" {
+variable "project-name" {
+  description = "Name of project"
+  type        = string
+}
+
+variable "ecr-url" {
+  type        = string
+  description = "The ECR repository's url"
+}
+
+variable "ecs-task-execution-role-arn" {
+  description = "The arn of ECS task execution role"
+  type        = string
+}
+
+variable "ecs-cpu" {
+  description = "The cpu unit of ecs service"
+  type        = number
+}
+
+variable "ecs-memory" {
+  description = "The memory of ecs service"
+  type        = number
+}
+
+variable "service-desired" {
+  description = "The desired number of service running in cluster"
+  type        = number
+}
+
+variable "target-group-arn" {
+  description = "The arn of target group for ECS services"
+  type        = string
+}
+
+variable "subnet-ids" {
+  description = "The id list of subnets which are used to deploy ecs service"
   type        = list(string)
-  description = "The ECR repository's urls"
 }
 
-variable "ecs-task-execution-role" {
-  description = "The ECS task execution role"
-}
-
-variable "gamera-target-groups" {
-  description = "The target group for ECS services"
-}
-
-variable "public-subnet-ids" {
-  description = "The public subnet ids"
-}
-
-variable "private-subnet-ids" {
-  description = "The private subnet ids"
-}
-
-variable "ecs-sg" {
-  description = "The security group for ecs service to allow inboud traffic from alb"
+variable "ecs-sg-id" {
+  description = "The security group id for ecs service to allow inboud traffic from alb"
+  type        = string
 }

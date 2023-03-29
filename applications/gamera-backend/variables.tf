@@ -36,3 +36,18 @@ variable "health-check-path" {
   description = "The health check path of target group"
   type        = string
 }
+
+variable "ecs-cpu" {
+  description = "The cpu unit of ecs service"
+  type        = number
+}
+
+variable "ecs-memory" {
+  description = "The memory allocated yo ecs service"
+  type        = number
+}
+
+variable "service-desired" {
+  description = "The desired number of ecs service"
+  type        = number
+}

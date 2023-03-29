@@ -65,27 +65,25 @@ module "ecr" {
   project-name = var.project-name
 }
 
-
-/*
-locals {
-  ecr-index = var.environment == "dev" ? 0 : 1
-}
-
 module "ecs" {
-  source                  = "../../modules/ecs"
-  environment             = var.environment
-  gamera-ecr-url          = module.ecr.gamera-ecr-url
-  ecs-task-execution-role = module.iam.ecs-task-execution-role
-  gamera-target-groups = module.load-balancer.gamera-target-groups
-  public-subnet-ids = module.vpc.public-subnet-ids
-  private-subnet-ids = module.vpc.private-subnet-ids
-  ecs-sg = module.security-group.ecs-sg
+  source = "../../modules/ecs"
+
+  environment                 = var.environment
+  project-name                = var.project-name
+  ecr-url                     = module.ecr.ecr-url
+  ecs-task-execution-role-arn = module.iam.ecs-task-execution-role-arn
+  ecs-cpu                     = var.ecs-cpu
+  ecs-memory                  = var.ecs-memory
+  service-desired             = var.service-desired
+  target-group-arn            = module.load-balancer.target-group-arn
+  subnet-ids                  = var.environment == "dev" ? module.vpc.public-subnet-ids : module.vpc.private-subnet-ids
+  ecs-sg-id                   = module.security-group.ecs-sg-id
 
   depends_on = [null_resource.push-default-image]
 }
 
 
-
+/*
 module "rds" {
   source             = "../../modules/rds"
   environment        = var.environment
@@ -94,8 +92,8 @@ module "rds" {
   public-subnet-ids  = module.vpc.public-subnet-ids
   private-subnet-ids = module.vpc.private-subnet-ids
 }
-
 */
+
 resource "null_resource" "push-default-image" {
   depends_on = [module.ecr]
 
