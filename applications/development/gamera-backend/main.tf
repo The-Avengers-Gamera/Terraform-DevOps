@@ -3,7 +3,7 @@ terraform {
 
   backend "s3" {
     bucket = "gamera-terraform"
-    key    = "richard/backend/terraform.tfstate"
+    key    = "development/backend/terraform.tfstate"
     region = "ap-southeast-2"
   }
 }
@@ -11,7 +11,7 @@ terraform {
 provider "aws" {}
 
 module "vpc" {
-  source = "../../modules/vpc"
+  source = "../../../modules/vpc"
 
   environment       = var.environment
   project-name      = var.project-name
@@ -19,7 +19,7 @@ module "vpc" {
 }
 
 module "security-group" {
-  source = "../../modules/security-group"
+  source = "../../../modules/security-group"
 
   environment  = var.environment
   project-name = var.project-name
@@ -27,7 +27,7 @@ module "security-group" {
 }
 
 module "route53" {
-  source = "../../modules/route53"
+  source = "../../../modules/route53"
 
   hosted-zone    = var.hosted-zone
   record-prefix  = var.record-prefix
@@ -36,14 +36,14 @@ module "route53" {
 }
 
 module "acm" {
-  source = "../../modules/acm"
+  source = "../../../modules/acm"
 
   domain-name    = "${var.record-prefix}.${var.hosted-zone}"
   hosted-zone-id = module.route53.hosted-zone-id
 }
 
 module "load-balancer" {
-  source = "../../modules/load-balancer"
+  source = "../../../modules/load-balancer"
 
   environment         = var.environment
   project-name        = var.project-name
@@ -55,18 +55,18 @@ module "load-balancer" {
 }
 
 module "iam" {
-  source = "../../modules/iam"
+  source = "../../../modules/iam"
 }
 
 module "ecr" {
-  source = "../../modules/ecr"
+  source = "../../../modules/ecr"
 
   environment  = var.environment
   project-name = var.project-name
 }
 
 module "ecs" {
-  source = "../../modules/ecs"
+  source = "../../../modules/ecs"
 
   environment                 = var.environment
   project-name                = var.project-name
@@ -83,7 +83,7 @@ module "ecs" {
 }
 
 module "rds" {
-  source = "../../modules/rds"
+  source = "../../../modules/rds"
 
   environment          = var.environment
   project-name         = var.project-name
@@ -95,7 +95,7 @@ module "rds" {
 }
 
 module "secrets-manager" {
-  source = "../../modules/secrets-manager"
+  source = "../../../modules/secrets-manager"
 
   environment  = var.environment
   project-name = var.project-name
