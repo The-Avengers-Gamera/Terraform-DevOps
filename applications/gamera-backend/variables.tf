@@ -8,6 +8,11 @@ variable "project-name" {
   type        = string
 }
 
+variable "region" {
+  description = "The region of project"
+  type        = string
+}
+
 variable "subnet-attributes" {
   description = "Attributes for a list of subnets"
   type = object({

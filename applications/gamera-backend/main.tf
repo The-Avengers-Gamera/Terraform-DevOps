@@ -54,15 +54,21 @@ module "load-balancer" {
   health-check-path   = var.health-check-path
 }
 
+module "iam" {
+  source = "../../modules/iam"
+}
+
+module "ecr" {
+  source = "../../modules/ecr"
+
+  environment  = var.environment
+  project-name = var.project-name
+}
+
 
 /*
 locals {
   ecr-index = var.environment == "dev" ? 0 : 1
-}
-
-module "ecr" {
-  source      = "../../modules/ecr"
-  environment = var.environment
 }
 
 module "ecs" {
@@ -78,9 +84,7 @@ module "ecs" {
   depends_on = [null_resource.push-default-image]
 }
 
-module "iam" {
-  source = "../../modules/iam"
-}
+
 
 module "rds" {
   source             = "../../modules/rds"
@@ -91,15 +95,16 @@ module "rds" {
   private-subnet-ids = module.vpc.private-subnet-ids
 }
 
+*/
 resource "null_resource" "push-default-image" {
   depends_on = [module.ecr]
 
   provisioner "local-exec" {
     command = "${path.module}/push-image.sh"
     environment = {
-      ECR_REGISTRY_ID = module.ecr.gamera-ecr-registry-id[local.ecr-index]
-      ECR_URL         = module.ecr.gamera-ecr-url[local.ecr-index]
+      REGION          = var.region
+      ECR_REGISTRY_ID = module.ecr.ecr-registry-id
+      ECR_URL         = module.ecr.ecr-url
     }
   }
 }
-*/
