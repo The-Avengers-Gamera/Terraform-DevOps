@@ -51,3 +51,13 @@ variable "service-desired" {
   description = "The desired number of ecs service"
   type        = number
 }
+
+variable "db-allocated-storage" {
+  description = "The allocated rds database storage"
+  type        = number
+}
+
+variable "db-instance-class" {
+  description = "The defined rds database instance class"
+  type        = string
+}

@@ -82,17 +82,24 @@ module "ecs" {
   depends_on = [null_resource.push-default-image]
 }
 
-
-/*
 module "rds" {
-  source             = "../../modules/rds"
-  environment        = var.environment
-  dev-db-sg-id       = module.security-group.dev-db-sg-id
-  prod-db-sg-id      = module.security-group.prod-db-sg-id
-  public-subnet-ids  = module.vpc.public-subnet-ids
-  private-subnet-ids = module.vpc.private-subnet-ids
+  source = "../../modules/rds"
+
+  environment          = var.environment
+  project-name         = var.project-name
+  db-sg-id             = module.security-group.db-sg-id
+  subnet-ids           = var.environment == "dev" ? module.vpc.public-subnet-ids : module.vpc.private-subnet-ids
+  db-allocated-storage = var.db-allocated-storage
+  db-instance-class    = var.db-instance-class
+  db-password          = module.secrets-manager.db-password
 }
-*/
+
+module "secrets-manager" {
+  source = "../../modules/secrets-manager"
+
+  environment  = var.environment
+  project-name = var.project-name
+}
 
 resource "null_resource" "push-default-image" {
   depends_on = [module.ecr]

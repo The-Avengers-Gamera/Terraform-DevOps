@@ -3,22 +3,32 @@ variable "environment" {
   description = "The environment of project"
 }
 
-variable "dev-db-sg-id" {
+variable "project-name" {
+  description = "Name of project"
   type        = string
-  description = "The security group's id for dev rds"
 }
 
-variable "prod-db-sg-id" {
+variable "db-sg-id" {
   type        = string
-  description = "The security group's id for prod rds"
+  description = "The security group's id for rds"
 }
 
-variable "public-subnet-ids" {
+variable "subnet-ids" {
   type        = list(string)
-  description = "The list of public subnet's id"
+  description = "The list of subnet's id"
 }
 
-variable "private-subnet-ids" {
-  type        = list(string)
-  description = "The list of private subnet's id"
+variable "db-allocated-storage" {
+  description = "The allocated rds database storage"
+  type        = number
+}
+
+variable "db-instance-class" {
+  description = "The defined rds database instance class"
+  type        = string
+}
+
+variable "db-password" {
+  description = "The password generated for rds database"
+  type        = string
 }
