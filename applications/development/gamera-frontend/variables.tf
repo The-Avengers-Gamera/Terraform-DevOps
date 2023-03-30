@@ -8,6 +8,11 @@ variable "project-name" {
   type        = string
 }
 
+variable "project-context" {
+  description = "The context of project, pass 'frontend' or 'backend'"
+  type = string
+}
+
 variable "hosted-zone" {
   description = "The name of hosted zone used in project"
   type        = string

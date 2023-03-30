@@ -98,10 +98,14 @@ module "secrets-manager" {
 
   environment  = var.environment
   project-name = var.project-name
+  project-context = var.project-context
   db-endpoint = module.rds.db-endpoint
   db-username = module.rds.db-username
   db-password = module.rds.db-password
   ecr-registry-id = module.ecr.ecr-registry-id
+
+  cloudfront-id = ""
+  bucket-name = ""
 }
 
 resource "null_resource" "push-default-image" {

@@ -1,15 +1,24 @@
 variable "environment" {
-  default = "dev"
+  description = "Project environment, pass 'dev' or 'prod'"
+  type        = string
 }
 
-variable "website-bucket-name" {
-  default = "richard-tf.gamera.com.au"
+variable "project-name" {
+  description = "Name of project"
+  type        = string
 }
 
-variable "gamera-hosted-zone" {
-  default = "gamera.com.au"
+variable "project-context" {
+  description = "The context of project, pass 'frontend' or 'backend'"
+  type = string
 }
 
-variable "subject-alternative-names" {
-  default = ["dev.richard.gamera.com.au", "prod.richard.gamera.com.au"]
+variable "hosted-zone" {
+  description = "The name of hosted zone used in project"
+  type        = string
+}
+
+variable "record-prefix" {
+  description = "The prefix of record to be created"
+  type        = string
 }

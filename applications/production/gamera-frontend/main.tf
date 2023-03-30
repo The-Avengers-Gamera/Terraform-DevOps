@@ -8,22 +8,65 @@ terraform {
   }
 }
 
-provider "aws" {}
-
-module "s3" {
-  source      = "../../../modules/s3"
-  environment = var.environment
+provider "aws" {
+  region = "ap-southeast-2"
 }
 
-module "route53" {
-  source             = "../../../modules/route53"
-  environment                 = var.environment
-  gamera-hosted-zone = var.gamera-hosted-zone
-  cloudfront-distributions = module.cloudfront.cloudfront-distributions
+provider "aws" {
+  region = "us-east-1"
+  alias = "us-east-1"
+}
+
+module "s3" {
+  source = "../../../modules/s3"
+
+  environment       = var.environment
+  project-name      = var.project-name
+  cloudfront-oai-id = module.cloudfront.cloudfront-oai-id
 }
 
 module "cloudfront" {
-  source                      = "../../../modules/cloudfront"
-  environment                 = var.environment
-  gamera-website-host-buckets = module.s3.gamera-website-host-buckets
+  source = "../../../modules/cloudfront"
+
+  environment    = var.environment
+  project-name   = var.project-name
+  hosted-zone    = var.hosted-zone
+  record-prefix  = var.record-prefix
+  website-bucket = module.s3.website-bucket
+  acm-certificate-arn = module.acm.acm-certificate-arn
+}
+
+module "route53" {
+  source = "../../../modules/route53"
+
+  hosted-zone    = var.hosted-zone
+  record-prefix  = var.record-prefix
+  alias-dns-name = module.cloudfront.cloudfront-distribution.domain_name
+  alias-zone-id  = module.cloudfront.cloudfront-distribution.hosted_zone_id
+}
+
+module "acm" {
+  source = "../../../modules/acm"
+
+  providers = {
+    aws = aws.us-east-1
+  }
+
+  domain-name = "${var.record-prefix}.${var.hosted-zone}"
+  hosted-zone-id = module.route53.hosted-zone-id
+}
+
+module "secrets-manager" {
+  source = "../../../modules/secrets-manager"
+
+  environment  = var.environment
+  project-name = var.project-name
+  project-context = var.project-context
+  db-endpoint = ""
+  db-username = ""
+  db-password = ""
+  ecr-registry-id = ""
+
+  cloudfront-id = module.cloudfront.cloudfront-id
+  bucket-name = module.s3.bucket-name
 }

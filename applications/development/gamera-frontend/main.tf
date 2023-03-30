@@ -55,3 +55,18 @@ module "acm" {
   domain-name = "${var.record-prefix}.${var.hosted-zone}"
   hosted-zone-id = module.route53.hosted-zone-id
 }
+
+module "secrets-manager" {
+  source = "../../../modules/secrets-manager"
+
+  environment  = var.environment
+  project-name = var.project-name
+  project-context = var.project-context
+  db-endpoint = ""
+  db-username = ""
+  db-password = ""
+  ecr-registry-id = ""
+
+  cloudfront-id = module.cloudfront.cloudfront-id
+  bucket-name = module.s3.bucket-name
+}
