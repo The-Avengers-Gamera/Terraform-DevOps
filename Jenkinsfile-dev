@@ -4,8 +4,8 @@ pipeline {
     }
 
     environment {
-        ENV = "dev"
-        S3_ENV_PATH = credentials('RICHARD_S3_ENV_PATH')
+        BUCKET = "gamera-terraform"
+        ENV = "development"
     }
 
     stages {
@@ -17,6 +17,16 @@ pipeline {
             }
         }
 
+        stage('Download .tfvars files') {
+            steps {
+                echo "Variable files downloading"
+
+                sh "aws s3 cp s3://${BUCKET}/${ENV}/backend/terraform.tfvars ./applications/development/gamera-backend/terraform.tfvars"
+                //sh "aws s3 cp s3://${BUCKET}/${ENV}/frontend/terraform.tfvars ./applications/development/gamera-frontend/terraform.tfvars"
+            }
+        }
+
+        /*
         stage("Provision frontend's infrastructure") {
             steps {
                 //Provision the frontend's infrastructure
@@ -28,30 +38,37 @@ pipeline {
 
                     //Provision the infrastructure in UAT environment
                     sh 'terraform apply -auto-approve -var "environment=${ENV}"'
-
-                    //Save the output in .env file
-                    sh 'echo "cloudfornt-id=$(terraform output cloudfornt-id)" > richard-uat-gamera-frontend.env'
-
-                    //Create or update .env file to s3 bucekt
-                    sh 'aws s3 cp richard-uat-gamera-frontend.env ${S3_ENV_PATH}/richard-uat-gamera-frontend.env'
                 }
             }
         }
+        */
 
         stage("Provision backends's infrastructure") {
             steps {
                 //Provision the backend's infrastructure
-                echo 'Backend infrastructure provisioning'  
+                echo 'Backend infrastructure provisioning'
+
+                //Build docker image to be uploaded to ECR as default
+                sh 'docker build -t default-image .'
+
+                dir('applications/development/gamera-backend') {
+                    //Install provider and modules
+                    sh 'terraform init'
+
+                    //Provision the backend infrastructure
+                    sh 'terraform apply -auto-approve'
+                }
             }
         }
     }
     
-
     post {
         always {
             // Clean the workspace after every pipeline build process
             echo 'Cleaning workspace'
+
             cleanWs()
+            sh 'docker images default-image -q | xargs docker image rm -f'
         }
 
         failure {
