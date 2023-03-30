@@ -1,9 +1,14 @@
-output "cloudfront-distributions" {
+output "cloudfront-distribution" {
   value       = aws_cloudfront_distribution.s3_distribution
-  description = "This is the list of cloudfront distributions"
+  description = "The cloudfront distribution"
 }
 
 output "cloudfront-oai-id" {
   value       = aws_cloudfront_origin_access_identity.cloudfront-oai.id
   description = "The id of cloudfront's origin access identity"
+}
+
+output "cloudfront-id" {
+  value = aws_cloudfront_distribution.s3_distribution.id
+  description = "The id of cloudfront distribution"
 }
