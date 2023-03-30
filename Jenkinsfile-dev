@@ -22,41 +22,40 @@ pipeline {
                 echo "Variable files downloading"
 
                 sh "aws s3 cp s3://${BUCKET}/${ENV}/backend/terraform.tfvars ./applications/development/gamera-backend/terraform.tfvars"
-                //sh "aws s3 cp s3://${BUCKET}/${ENV}/frontend/terraform.tfvars ./applications/development/gamera-frontend/terraform.tfvars"
+                sh "aws s3 cp s3://${BUCKET}/${ENV}/frontend/terraform.tfvars ./applications/development/gamera-frontend/terraform.tfvars"
             }
         }
-
-        /*
-        stage("Provision frontend's infrastructure") {
+        
+        stage("Provision infrastructure") {
             steps {
-                //Provision the frontend's infrastructure
-                echo 'Frontend infrastructure provisioning'
-                
-                dir('applications/gamera-frontend') {
-                    //Install provider and modules
-                    sh 'terraform init'
-
-                    //Provision the infrastructure in UAT environment
-                    sh 'terraform apply -auto-approve -var "environment=${ENV}"'
-                }
-            }
-        }
-        */
-
-        stage("Provision backends's infrastructure") {
-            steps {
-                //Provision the backend's infrastructure
-                echo 'Backend infrastructure provisioning'
+                //Provision the project's infrastructure
+                echo 'Infrastructure provisioning'
 
                 //Build docker image to be uploaded to ECR as default
                 sh 'docker build -t default-image .'
+                
+                script {
+                    parallel(
+                        frontend: {
+                            dir('applications/development/gamera-frontend') {
+                                // Install provider and modules
+                                sh 'terraform init'
 
-                dir('applications/development/gamera-backend') {
-                    //Install provider and modules
-                    sh 'terraform init'
+                                // Provision the infrastructure in UAT environment
+                                sh 'terraform apply -auto-approve'
+                            }
+                        },
 
-                    //Provision the backend infrastructure
-                    sh 'terraform apply -auto-approve'
+                        backend: {
+                            dir('applications/development/gamera-backend') {
+                                // Install provider and modules
+                                sh 'terraform init'
+
+                                // Provision the backend infrastructure
+                                sh 'terraform apply -auto-approve'
+                            }
+                        }
+                    )
                 }
             }
         }
