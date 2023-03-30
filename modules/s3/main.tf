@@ -13,3 +13,9 @@ resource "aws_s3_bucket_website_configuration" "website-configuration" {
     key = "error.html"
   }
 }
+
+resource "aws_s3_bucket_policy" "allow_cloudfront_access" {
+  bucket = aws_s3_bucket.website-bucket.id
+  policy = templatefile("${path.module}/policy.json",
+  { bucket-name = aws_s3_bucket.website-bucket.id, cloudfront-oai-id = var.cloudfront-oai-id })
+}

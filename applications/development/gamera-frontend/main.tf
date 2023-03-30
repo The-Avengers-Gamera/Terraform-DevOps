@@ -11,17 +11,18 @@ terraform {
 provider "aws" {}
 
 module "s3" {
-  source      = "../../../modules/s3"
+  source = "../../../modules/s3"
 
-  environment = var.environment
-  project-name = var.project-name
+  environment       = var.environment
+  project-name      = var.project-name
+  cloudfront-oai-id = module.cloudfront.cloudfront-oai-id
 }
 
 module "cloudfront" {
-  source     = "../../../modules/cloudfront"
+  source = "../../../modules/cloudfront"
 
-  environment  = var.environment
-  project-name = var.project-name
+  environment    = var.environment
+  project-name   = var.project-name
   website-bucket = module.s3.website-bucket
 }
 

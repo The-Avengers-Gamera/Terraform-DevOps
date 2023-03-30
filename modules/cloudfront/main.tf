@@ -6,6 +6,10 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
     domain_name = var.website-bucket.bucket_regional_domain_name
     origin_id   = local.s3-origin-id
+
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.cloudfront-oai.cloudfront_access_identity_path
+    }
   }
 
   enabled             = true
@@ -92,4 +96,8 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   viewer_certificate {
     cloudfront_default_certificate = true
   }
+}
+
+resource "aws_cloudfront_origin_access_identity" "cloudfront-oai" {
+  comment = "OAI for accessing ${var.project-name}'s website bucket in ${var.environment} environment"
 }
