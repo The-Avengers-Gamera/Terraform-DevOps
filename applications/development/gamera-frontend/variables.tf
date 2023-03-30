@@ -1,15 +1,9 @@
 variable "environment" {
-  default = "dev"
+  description = "Project environment, pass 'dev' or 'prod'"
+  type        = string
 }
 
-variable "website-bucket-name" {
-  default = "richard-tf.gamera.com.au"
-}
-
-variable "gamera-hosted-zone" {
-  default = "gamera.com.au"
-}
-
-variable "subject-alternative-names" {
-  default = ["dev.richard.gamera.com.au", "prod.richard.gamera.com.au"]
+variable "project-name" {
+  description = "Name of project"
+  type        = string
 }

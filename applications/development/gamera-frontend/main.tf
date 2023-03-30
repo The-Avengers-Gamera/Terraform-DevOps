@@ -12,9 +12,20 @@ provider "aws" {}
 
 module "s3" {
   source      = "../../../modules/s3"
+
   environment = var.environment
+  project-name = var.project-name
 }
 
+module "cloudfront" {
+  source     = "../../../modules/cloudfront"
+
+  environment  = var.environment
+  project-name = var.project-name
+  website-bucket = module.s3.website-bucket
+}
+
+/*
 module "route53" {
   source             = "../../../modules/route53"
   environment                 = var.environment
@@ -22,8 +33,5 @@ module "route53" {
   cloudfront-distributions = module.cloudfront.cloudfront-distributions
 }
 
-module "cloudfront" {
-  source                      = "../../../modules/cloudfront"
-  environment                 = var.environment
-  gamera-website-host-buckets = module.s3.gamera-website-host-buckets
-}
+
+*/

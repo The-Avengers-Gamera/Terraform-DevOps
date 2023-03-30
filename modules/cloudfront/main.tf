@@ -1,24 +1,22 @@
 locals {
-  s3_origin_id = ["dev-richard-gamera-s3-origin", "prod-richard-gamera-s3-origin"]
+  s3-origin-id = "${var.environment}-${var.project-name}-s3-origin"
 }
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
-  count = var.environment == "prod" ? 2 : 1
-
   origin {
-    domain_name = var.gamera-website-host-buckets[count.index].bucket_regional_domain_name
-    origin_id   = local.s3_origin_id[count.index]
+    domain_name = var.website-bucket.bucket_regional_domain_name
+    origin_id   = local.s3-origin-id
   }
 
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "CDN for gamera project's website"
+  comment             = "CDN for ${var.project-name}'s website in ${var.environment} environment"
   default_root_object = "index.html"
 
   default_cache_behavior {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = local.s3_origin_id[count.index]
+    target_origin_id = local.s3-origin-id
 
     forwarded_values {
       query_string = false
@@ -39,7 +37,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     path_pattern     = "/content/immutable/*"
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id = local.s3_origin_id[count.index]
+    target_origin_id = local.s3-origin-id
 
     forwarded_values {
       query_string = false
@@ -62,7 +60,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     path_pattern     = "/content/*"
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = local.s3_origin_id[count.index]
+    target_origin_id = local.s3-origin-id
 
     forwarded_values {
       query_string = false
@@ -85,10 +83,10 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     }
   }
 
-  price_class = count.index == 0 ? "PriceClass_100" : "PriceClass_All"
+  price_class = var.environment == "dev" ? "PriceClass_100" : "PriceClass_All"
 
   tags = {
-    Environment = count.index == 0 ? "dev" : "prod"
+    Environment = var.environment
   }
 
   viewer_certificate {

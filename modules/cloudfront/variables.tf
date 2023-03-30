@@ -3,6 +3,11 @@ variable "environment" {
   description = "The environment of project"
 }
 
-variable "gamera-website-host-buckets" {
-  description = "This is the list of gamera's website host buckets"
+variable "project-name" {
+  description = "Name of project"
+  type        = string
+}
+
+variable "website-bucket" {
+  description = "This is the bucket used to host website"
 }
