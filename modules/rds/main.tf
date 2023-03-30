@@ -7,7 +7,7 @@ resource "aws_db_instance" "postgres-db" {
   storage_type      = "gp2"
 
   username                  = "postgres"
-  password                  = var.db-password
+  password                  = random_password.db-password.result
   parameter_group_name      = "default.postgres14"
   skip_final_snapshot       = var.environment == "dev" ? true : false
   final_snapshot_identifier = "${var.environment}-${var.project-name}-db-final-snapshot"
@@ -29,4 +29,10 @@ resource "aws_db_subnet_group" "db-subnet-groups" {
   tags = {
     Name = "${var.environment}-${var.project-name}-db-subnet-groups"
   }
+}
+
+resource "random_password" "db-password" {
+  length           = 32
+  special          = true
+  override_special = "_%+^!#()-=[]{}<>?"
 }

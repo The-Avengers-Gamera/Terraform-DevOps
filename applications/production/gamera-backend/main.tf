@@ -91,7 +91,6 @@ module "rds" {
   subnet-ids           = var.environment == "dev" ? module.vpc.public-subnet-ids : module.vpc.private-subnet-ids
   db-allocated-storage = var.db-allocated-storage
   db-instance-class    = var.db-instance-class
-  db-password          = module.secrets-manager.db-password
 }
 
 module "secrets-manager" {
@@ -99,6 +98,10 @@ module "secrets-manager" {
 
   environment  = var.environment
   project-name = var.project-name
+  db-endpoint = module.rds.db-endpoint
+  db-username = module.rds.db-username
+  db-password = module.rds.db-password
+  ecr-registry-id = module.ecr.ecr-registry-id
 }
 
 resource "null_resource" "push-default-image" {

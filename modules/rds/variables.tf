@@ -27,8 +27,3 @@ variable "db-instance-class" {
   description = "The defined rds database instance class"
   type        = string
 }
-
-variable "db-password" {
-  description = "The password generated for rds database"
-  type        = string
-}
