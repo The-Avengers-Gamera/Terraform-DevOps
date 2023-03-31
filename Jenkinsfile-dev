@@ -12,7 +12,7 @@ pipeline {
         stage("Git checkout") {
             steps {
                 //Get source code from project's terraform repository
-                git branch: 'richard-terraform',
+                git branch: 'main',
                 url: 'https://github.com/The-Avengers-Gamera/Terraform-DevOps.git'
             }
         }
