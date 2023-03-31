@@ -1,11 +1,5 @@
-resource "random_string" "name-suffix" {
-  length           = 8
-  special          = true
-  override_special = "/_+=.@-"
-}
-
 resource "aws_secretsmanager_secret" "project-credentials" {
-  name = "${var.environment}-${var.project-name}-${var.project-context}-credentials-${random_string.name-suffix.result}"
+  name = "${var.environment}-${var.project-name}-${var.project-context}-credentials"
 }
 
 resource "aws_secretsmanager_secret_version" "backend-credentials-version" {

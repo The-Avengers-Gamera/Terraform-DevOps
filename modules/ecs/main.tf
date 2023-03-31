@@ -2,18 +2,6 @@ resource "aws_ecs_cluster" "ecs-cluster" {
   name = "${var.environment}-${var.project-name}-ecs-cluster"
 }
 
-resource "aws_ecs_cluster_capacity_providers" "fargate-provider" {
-  cluster_name = aws_ecs_cluster.ecs-cluster.name
-
-  capacity_providers = ["FARGATE"]
-
-  default_capacity_provider_strategy {
-    base              = 1
-    weight            = 100
-    capacity_provider = "FARGATE"
-  }
-}
-
 resource "aws_ecs_task_definition" "ecs-task-def" {
   family                   = "${var.environment}-${var.project-name}-task-def"
   requires_compatibilities = ["FARGATE"]
@@ -49,6 +37,12 @@ resource "aws_ecs_service" "service" {
   cluster         = aws_ecs_cluster.ecs-cluster.id
   task_definition = aws_ecs_task_definition.ecs-task-def.arn
   desired_count   = var.service-desired
+
+  capacity_provider_strategy {
+    base              = 1 
+    capacity_provider = "FARGATE"
+    weight            = 100
+  }
 
   load_balancer {
     target_group_arn = var.target-group-arn
