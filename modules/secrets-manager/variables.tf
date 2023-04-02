@@ -42,3 +42,8 @@ variable "bucket-name" {
   description = "The name of bucket which host website"
   type        = string
 }
+
+variable "openai-key" {
+  description = "The key for openai"
+  type        = string
+}
