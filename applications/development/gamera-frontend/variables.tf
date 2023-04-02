@@ -10,7 +10,7 @@ variable "project-name" {
 
 variable "project-context" {
   description = "The context of project, pass 'frontend' or 'backend'"
-  type = string
+  type        = string
 }
 
 variable "hosted-zone" {

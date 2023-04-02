@@ -14,7 +14,7 @@ provider "aws" {
 
 provider "aws" {
   region = "us-east-1"
-  alias = "us-east-1"
+  alias  = "us-east-1"
 }
 
 module "s3" {
@@ -28,11 +28,11 @@ module "s3" {
 module "cloudfront" {
   source = "../../../modules/cloudfront"
 
-  environment    = var.environment
-  project-name   = var.project-name
-  hosted-zone    = var.hosted-zone
-  record-prefix  = var.record-prefix
-  website-bucket = module.s3.website-bucket
+  environment         = var.environment
+  project-name        = var.project-name
+  hosted-zone         = var.hosted-zone
+  record-prefix       = var.record-prefix
+  website-bucket      = module.s3.website-bucket
   acm-certificate-arn = module.acm.acm-certificate-arn
 }
 
@@ -52,21 +52,22 @@ module "acm" {
     aws = aws.us-east-1
   }
 
-  domain-name = "${var.record-prefix}.${var.hosted-zone}"
+  domain-name    = "${var.record-prefix}.${var.hosted-zone}"
   hosted-zone-id = module.route53.hosted-zone-id
 }
 
 module "secrets-manager" {
   source = "../../../modules/secrets-manager"
 
-  environment  = var.environment
-  project-name = var.project-name
+  environment     = var.environment
+  project-name    = var.project-name
   project-context = var.project-context
-  db-endpoint = ""
-  db-username = ""
-  db-password = ""
+  db-endpoint     = ""
+  db-username     = ""
+  db-password     = ""
   ecr-registry-id = ""
+  openai-key      = ""
 
   cloudfront-id = module.cloudfront.cloudfront-id
-  bucket-name = module.s3.bucket-name
+  bucket-name   = module.s3.bucket-name
 }
