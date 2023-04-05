@@ -1,56 +1,32 @@
-module "alb" {
-  source  = "terraform-aws-modules/alb/aws"
-  version = "~> 8.0"
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "4.61.0"
+    }
+  }
+}
 
-  name = "my-alb"
+provider "aws" {
+  # Configuration options
+}
 
+resource "aws_lb" "test" {
+  name               = "test-lb-tf"
+  internal           = false
   load_balancer_type = "application"
+  security_groups    = [aws_security_group.lb_sg.id]
+  subnets            = [for subnet in aws_subnet.public : subnet.id]
 
-  vpc_id             = "vpc-abcde012"
-  subnets            = ["subnet-abcde012", "subnet-bcde012a"]
-  security_groups    = ["sg-edcd9784", "sg-edcd9785"]
+  enable_deletion_protection = true
 
-  access_logs = {
-    bucket = "my-alb-logs"
+  access_logs {
+    bucket  = aws_s3_bucket.lb_logs.id
+    prefix  = "test-lb"
+    enabled = true
   }
 
-  target_groups = [
-    {
-      name_prefix      = "pref-"
-      backend_protocol = "HTTP"
-      backend_port     = 80
-      target_type      = "instance"
-      targets = {
-        my_target = {
-          target_id = "i-0123456789abcdefg"
-          port = 80
-        }
-        my_other_target = {
-          target_id = "i-a1b2c3d4e5f6g7h8i"
-          port = 8080
-        }
-      }
-    }
-  ]
-
-  https_listeners = [
-    {
-      port               = 443
-      protocol           = "HTTPS"
-      certificate_arn    = "arn:aws:iam::123456789012:server-certificate/test_cert-123456789012"
-      target_group_index = 0
-    }
-  ]
-
-  http_tcp_listeners = [
-    {
-      port               = 80
-      protocol           = "HTTP"
-      target_group_index = 0
-    }
-  ]
-
   tags = {
-    Environment = "Test"
+    Environment = "production"
   }
 }
