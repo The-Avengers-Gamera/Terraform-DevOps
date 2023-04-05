@@ -1,16 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-      version = "4.61.0"
-    }
-  }
-}
-
-provider "aws" {
-  # Configuration options
-}
-
 resource "aws_lb" "test" {
   name               = "test-lb-tf"
   internal           = false
