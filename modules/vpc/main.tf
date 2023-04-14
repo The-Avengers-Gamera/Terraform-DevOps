@@ -62,6 +62,18 @@ resource "aws_route_table" "public-rt" {
     gateway_id = aws_internet_gateway.igw.id
   }
 
+  /*
+    This dynamic route rule is only for enable reverse proxy feature for Jenkins server
+    This rule is unrelated to project, if cause any error, just delete this dynamic rule
+  */
+  dynamic "route" {
+    for_each = var.environment == "dev" ? [1] : []
+    content {
+      cidr_block                = "172.31.0.0/16"
+      vpc_peering_connection_id = "pcx-03ebb2b647deeda84"
+    }
+  }
+
   tags = {
     Name = "${var.environment}-${var.project-name}-public-route-table"
   }

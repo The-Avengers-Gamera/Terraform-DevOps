@@ -10,7 +10,7 @@ variable "project-name" {
 
 variable "project-context" {
   description = "The context of project, pass 'frontend' or 'backend'"
-  type = string
+  type        = string
 }
 
 variable "region" {
@@ -64,5 +64,10 @@ variable "db-allocated-storage" {
 
 variable "db-instance-class" {
   description = "The defined rds database instance class"
+  type        = string
+}
+
+variable "openai-key" {
+  description = "The key for openai"
   type        = string
 }

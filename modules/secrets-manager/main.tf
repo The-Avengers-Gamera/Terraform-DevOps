@@ -12,6 +12,7 @@ resource "aws_secretsmanager_secret_version" "backend-credentials-version" {
     username        = var.db-username
     password        = var.db-password
     ecr-registry-id = var.ecr-registry-id
+    openai-key      = var.openai-key
   })
 }
 
