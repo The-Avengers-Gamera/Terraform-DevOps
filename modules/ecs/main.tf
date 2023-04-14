@@ -8,21 +8,27 @@ resource "aws_ecs_task_definition" "ecs-task-def" {
   network_mode             = "awsvpc"
   cpu                      = var.ecs-cpu
   memory                   = var.ecs-memory
-  container_definitions = jsonencode([
-    {
-      name      = "${var.environment}-${var.project-name}-container"
-      image     = "${var.ecr-url}:latest"
-      cpu       = var.ecs-cpu
-      memory    = var.ecs-memory
-      essential = true
-      portMappings = [
-        {
-          containerPort = 8080
-          hostPort      = 8080
-        }
-      ]
+  container_definitions = jsonencode([{
+    name      = "${var.environment}-${var.project-name}-container"
+    image     = "${var.ecr-url}:latest"
+    cpu       = var.ecs-cpu
+    memory    = var.ecs-memory
+    essential = true
+    portMappings = [
+      {
+        containerPort = 8080
+        hostPort      = 8080
+      }
+    ]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        "awslogs-group"         = aws_cloudwatch_log_group.log-group.name
+        "awslogs-region"        = "ap-southeast-2"
+        "awslogs-stream-prefix" = "${var.environment}-${var.project-name}"
+      }
     }
-  ])
+  }])
 
   runtime_platform {
     operating_system_family = "LINUX"
@@ -55,4 +61,8 @@ resource "aws_ecs_service" "service" {
     assign_public_ip = var.environment == "dev" ? true : false
     security_groups  = [var.ecs-sg-id]
   }
+}
+
+resource "aws_cloudwatch_log_group" "log-group" {
+  name = "${var.environment}-${var.project-name}-logs"
 }
